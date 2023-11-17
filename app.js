@@ -3,6 +3,8 @@
 // Https requests and responses
 // os operating system operations
 const path = require("path");
+const https = require("https");
+const fs = require("fs");
 // Import statments in js
 // if you don't write ./ it will look for a global variable called http
 // and if you put it it will look for js file
@@ -18,9 +20,30 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const multer = require("multer");
-const MONGODB_URI = "mongodb://127.0.0.1:27017/shop";
+const helmet = require("helmet");
+const compression = require("compression");
+const morgan = require("morgan");
+
+// const MONGODB_URI = "mongodb://127.0.0.1:27017/shop";
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.0e8wfii.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 
 const app = express();
+
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  {
+    flags: "a",
+  }
+);
+
+// To secure Requests
+app.use(helmet());
+// To Compress Assets
+app.use(compression());
+
+//  WE Give it a log stream to save the log proccess
+app.use(morgan("combined", { stream: accessLogStream }));
+
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions",
@@ -34,6 +57,10 @@ const store = new MongoDBStore({
 //     cb(null, new Date().toISOString() + "-" + file.originalname);
 //   },
 // });
+
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.cert");
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./images");
@@ -180,7 +207,12 @@ mongoose
   .connect(MONGODB_URI)
   .then((result) => {
     console.log("all good to go");
-    app.listen(3000);
+
+    // To use SSL
+    // https
+    //   .createServer({ key: privateKey, cert: certificate }, app)
+    //   .listen(process.env.PORT || 3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log("sss");
