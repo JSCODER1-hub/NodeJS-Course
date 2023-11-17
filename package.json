@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha",
-    "start": "NODE_ENV=production MONGO_USER=mohamed MONGO_PASSWORD=12345678910Aa MONGO_DEFAULT_DATABASE=shop STRIPE_KEY=sk_test_51O8jeAKEjALzLovgTwHG72aop2xAoYmrTKFXhqjUmNMSdjI1UZIIWL3H18d0TOXVvQG3XkkJLyAHQZtS0LOQNvVj00MHIqk6jE app.js"
+    "start": "node app.js"
   },
   "author": "Mohamed Medhat",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^3.1.1",
     "csurf": "^1.11.0",
+    "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-handlebars": "3.0",

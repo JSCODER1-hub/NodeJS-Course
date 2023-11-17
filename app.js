@@ -5,6 +5,7 @@
 const path = require("path");
 const https = require("https");
 const fs = require("fs");
+require("dotenv").config();
 // Import statments in js
 // if you don't write ./ it will look for a global variable called http
 // and if you put it it will look for js file
