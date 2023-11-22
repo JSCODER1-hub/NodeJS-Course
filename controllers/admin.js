@@ -5,7 +5,6 @@ const mongodb = require("mongodb");
 const { validationResult } = require("express-validator");
 const fileHelper = require("../util/file");
 exports.getAddProduct = (req, res, next) => {
-  // console.log("In Another the Middleware");
   //  The end is here
   // rootDir = dirname ../
   // res.sendFile(path.join(__dirname, "../", "views", "add-product.html"));
@@ -198,6 +197,14 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+
+  let message = req.flash("errorMessage");
+  console.log(message)
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   Product.find()
     // to select specific columns (- means excluded)
 
@@ -208,30 +215,40 @@ exports.getProducts = (req, res, next) => {
       "name"
     )
     .then((products) => {
-      res.render("admin/products", {
+      res.status(200);
+      return res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
         isAuthenticated: req.session.isLoggedIn,
+        errorMessage:message
       });
     });
 };
 
-exports.deleteProduct = (req, res, next) => {
+exports.deleteProduct = async (req, res, next) => {
   const prodId = req.params.productId;
   Product.findById(prodId).then((product) => {
     if (!product) {
       next(new Error("Product Not Found"));
     }
-    fileHelper.deleteFile(product.imageUrl);
+    if (product.userId.toString() != req.user._id.toString()) {
+
+        req.flash("errorMessage" , "You Cannot Delete this product")
+        res.status(400)
+        return res.json({message:"You cannot delete"})
+    }
     Product.deleteOne({ _id: prodId, userId: req.user._id })
       .then(() => {
         // res.redirect("/admin/products");
-        console.log("done");
-        res.status(200).json({ message: "Success!" });
+
+        fileHelper.deleteFile(product.imageUrl);
+        res.status(200);
+        res.json({ message: "success" });
       })
       .catch((err) => {
-        res.status(500).json({ message: "Deleting Product failed." });
+        res.status(500);
+        res.json({ message: "Deleting Product failed." });
       });
   });
 };

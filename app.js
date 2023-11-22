@@ -127,7 +127,7 @@ const flash = require("connect-flash");
 // Automatic body parsing
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: storage }).single("image"));
-app.use("public", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 // we have to mention the route of serving
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
